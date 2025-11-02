@@ -7,6 +7,19 @@ from docx import Document
 from docx.shared import RGBColor
 
 # =========================
+# =========================
+# 🔓 Giải nén data.zip nếu chưa có thư mục data
+# =========================
+import zipfile
+
+if not os.path.exists("data"):
+    if os.path.exists("data.zip"):
+        with zipfile.ZipFile("data.zip", 'r') as zip_ref:
+            zip_ref.extractall(".")
+        print("✅ Đã giải nén data.zip")
+    else:
+        print("⚠️ Không tìm thấy data.zip")
+
 # ⚙️ Cấu hình trang
 # =========================
 st.set_page_config(layout="wide")
@@ -349,3 +362,4 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
