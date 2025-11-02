@@ -28,8 +28,10 @@ st.title("📝 Sinh đề kiểm tra từ ma trận (chuẩn ex_test)")
 # =========================
 # 🔑 Nhập API Key
 # =========================
-api_key = st.text_input("Nhập API Key của Groq:", type="password")
-
+#api_key = st.text_input("Nhập API Key của Groq:", type="password")
+# Lấy key từ secrets
+api_key = st.secrets["GROQ_API_KEY"]
+client = Groq(api_key=api_key)
 # =========================
 # 🧠 Hàm tiện ích
 # =========================
@@ -362,4 +364,5 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
