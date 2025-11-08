@@ -40,12 +40,17 @@ st.markdown(
         <img src="https://cdn-icons-png.flaticon.com/512/3523/3523063.png" width="55" style="margin-bottom: 5px;" />
         <h1 style="margin-bottom: 0;">SinhĐề+</h1>
         <p style="color: gray; font-size: 16px; margin-top: 4px;">
-            Ứng dụng sinh đề kiểm tra tự động — <b>Phạm Tiến Long&Trương Thị Huỳnh Trang</b> (2025)
+            Ứng dụng sinh đề kiểm tra tự động — <b>Phạm Tiến Long & Trương Thị Huỳnh Trang</b> (2025)
+        </p>
+        <p style="font-size: 15px; color: #555;">
+            📞 Liên hệ hỗ trợ: <a href="tel:0396595129" style="text-decoration: none; color: #3366cc;">0396595129</a><br>
+            ✉️ Email: <a href="mailto:longp2241901@gmail.com" style="text-decoration: none; color: #3366cc;">longp2241901@gmail.com</a>
         </p>
     </div>
     """,
     unsafe_allow_html=True
 )
+
 
 
 # =========================
