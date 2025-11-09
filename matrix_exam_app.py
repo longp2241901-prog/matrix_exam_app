@@ -374,13 +374,42 @@ else:
             doc = DocReader(uploaded_file)
             for para in doc.paragraphs:
                 extracted_text += para.text + "\n"
-
         elif file_type == "pdf":
             pdf_reader = PyPDF2.PdfReader(uploaded_file)
-            for page in pdf_reader.pages:
-                text = page.extract_text()
-                if text:
-                    extracted_text += text + "\n"
+            total_pages = len(pdf_reader.pages)
+
+            # ✅ Cho phép người dùng chọn trang (ví dụ: "1,2" hoặc "5-6")
+            page_input = st.text_input(
+                f"Nhập số trang cần Tex hóa (1–{total_pages}, tối đa 2 trang):",
+                value="1,2"
+            )
+
+            # 🔢 Hàm lấy danh sách trang từ chuỗi nhập
+            def parse_page_input(text):
+                pages = set()
+                for part in text.split(","):
+                    part = part.strip()
+                    if "-" in part:
+                        start, end = part.split("-")
+                        pages.update(range(int(start), int(end) + 1))
+                    elif part.isdigit():
+                        pages.add(int(part))
+                # Giới hạn tối đa 2 trang
+                return sorted(list(pages))[:2]
+
+            selected_pages = parse_page_input(page_input)
+            selected_pages = [p for p in selected_pages if 1 <= p <= total_pages]
+
+            if not selected_pages:
+                st.warning("⚠️ Vui lòng nhập số trang hợp lệ (tối đa 2 trang).")
+            else:
+                st.info(f"📄 Đang đọc các trang: {', '.join(map(str, selected_pages))}")
+                extracted_text = ""
+                for p in selected_pages:
+                    page = pdf_reader.pages[p - 1]
+                    text = page.extract_text()
+                    if text:
+                        extracted_text += text + "\n"
 
         # 🔹 Làm sạch nội dung
         extracted_text = clean_text_for_tex(extracted_text)
@@ -544,4 +573,5 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
