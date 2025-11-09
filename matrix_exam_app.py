@@ -9,6 +9,16 @@ import PyPDF2
 from io import BytesIO
 from docx import Document as DocReader
 #=====================
+import zipfile
+
+# 🔓 Giải nén data.zip nếu chưa có thư mục data
+if not os.path.exists("data"):
+    if os.path.exists("data.zip"):
+        with zipfile.ZipFile("data.zip", 'r') as zip_ref:
+            zip_ref.extractall(".")
+        print("✅ Đã giải nén data.zip")
+    else:
+        print("⚠️ Không tìm thấy data.zip")
 # =========================
 # 🧹 Hàm làm sạch nội dung trước khi Tex hóa
 # =========================
@@ -534,3 +544,4 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
