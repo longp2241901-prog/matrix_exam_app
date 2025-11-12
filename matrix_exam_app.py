@@ -504,7 +504,11 @@ Dạng LaTeX chuẩn ex_test:
                 )
                 output = chat_completion.choices[0].message.content.strip()
                 st.code(output, language="latex")
+                # --- Bản vá lỗi Word trống ---
                 st.session_state.all_questions = [output]
+                st.session_state["pdf_generated_output"] = output  # giữ lại nội dung sinh từ PDF
+                st.session_state["last_mode"] = "pdf"              # ghi nhớ nguồn dữ liệu
+                # --- Kết thúc bản vá ---
                 st.success("✅ Hoàn tất xử lý văn bản.")
             except Exception as e:
                 st.error(f"Lỗi khi gọi Groq API: {e}")
@@ -593,11 +597,23 @@ Yêu cầu:
 # =========================
 # 💾 Xuất file
 # =========================
-if export_word_btn and st.session_state.all_questions:
-    word_file = export_word_ex(st.session_state.all_questions, "de_kiem_tra.docx")
-    with open(word_file, "rb") as f:
-        st.download_button("⬇️ Tải Word", f, file_name="de_kiem_tra.docx")
+if export_word_btn:
+    # --- Dự phòng cho trường hợp sinh từ PDF ---
+    if st.session_state.get("all_questions"):
+        data_to_export = st.session_state["all_questions"]
+    elif st.session_state.get("pdf_generated_output"):
+        data_to_export = [st.session_state["pdf_generated_output"]]
+    else:
+        data_to_export = []
 
+    if data_to_export:
+        word_file = export_word_ex(data_to_export, "de_kiem_tra.docx")
+        with open(word_file, "rb") as f:
+            st.download_button("⬇️ Tải Word", f, file_name="de_kiem_tra.docx")
+    else:
+        st.warning("⚠️ Không có dữ liệu để xuất Word. Vui lòng sinh đề trước.")
+
+#-----
 if export_tex_btn and st.session_state.all_questions:
     tex_file = export_latex_ex(st.session_state.all_questions, "de_kiem_tra.tex")
     with open(tex_file, "rb") as f:
@@ -767,5 +783,6 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
