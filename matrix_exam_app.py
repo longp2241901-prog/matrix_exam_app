@@ -503,13 +503,16 @@ Dạng LaTeX chuẩn ex_test:
                     temperature=0.7,
                 )
                 output = chat_completion.choices[0].message.content.strip()
+                st.code(output, language="latex")
 
-                # 🔹 Dọn sạch LaTeX để đồng nhất với Tex hóa nội dung
-                cleaned_tex = clean_text_for_tex(output)
+                # ✅ Tách các câu hỏi thành danh sách
+                split_questions = split_ex_blocks(output)
+                if not split_questions:
+                    split_questions = [output]  # fallback nếu không tách được
 
-                st.code(cleaned_tex, language="latex")
-                st.session_state.all_questions = [cleaned_tex]
-                st.success("✅ Hoàn tất xử lý văn bản (đã Tex hóa).")
+                st.session_state.all_questions = split_questions
+                st.success("✅ Hoàn tất xử lý văn bản.")
+
             except Exception as e:
                 st.error(f"Lỗi khi gọi Groq API: {e}")
 
