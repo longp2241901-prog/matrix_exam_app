@@ -489,7 +489,7 @@ Văn bản cần xử lý:
 Dưới đây là nội dung văn bản người dùng cung cấp:
 {extracted_text}
 
-Hãy sinh 5 câu hỏi tương tự (giống phong cách, chủ đề, độ khó, độ dài) 
+Hãy sinh ra **số lượng câu hỏi tương đương** với số lượng câu hỏi trong văn bản trên (giống phong cách, chủ đề, độ khó, độ dài) 
 và TRẢ VỀ đúng chuẩn LaTeX theo mẫu ex_test dưới đây:
 Yêu cầu:
 - Không thêm 'Câu 1.' hoặc 'Câu 2.'.
