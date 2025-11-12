@@ -375,10 +375,11 @@ elif mode.startswith("✍️"):
     user_input = st.text_area(
         "Nhập nội dung LaTeX của câu hỏi (\\begin{ex} ... \\end{ex}):",
         height=300,
-        placeholder="Ví dụ:\n Dạng 4 lựa chọn: \\begin{ex} ... \\choice{A}{\\True B}{C}{D} \\loigiai{Giải thích...} \\end{ex}\n
-        Dạng đúng sai: \\begin{ex} ... \\choiceTF{a}{\\True b}{c}{\\True d} \\loigiai{Giải thích...} \\end{ex}\n
-        Dạng trả lời ngắn: \\begin{ex} ... \\shortans[oly]{đáp số}\\end{ex}
-        "
+        placeholder="""Ví dụ:
+Dạng 4 lựa chọn: \\begin{ex} ... \\choice{A}{\\True B}{C}{D} \\loigiai{Giải thích...} \\end{ex}
+Dạng đúng sai: \\begin{ex} ... \\choiceTF{a}{\\True b}{c}{\\True d} \\loigiai{Giải thích...} \\end{ex}
+Dạng trả lời ngắn: \\begin{ex} ... \\shortans[oly]{đáp số}\\end{ex}
+"""
     )
     so_luong_tu_nhap = st.number_input("Số lượng câu muốn sinh thêm:", 1, 50, 5)
 
@@ -766,4 +767,5 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
