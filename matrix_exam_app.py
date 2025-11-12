@@ -491,25 +491,22 @@ Dưới đây là nội dung văn bản người dùng cung cấp:
 
 Hãy sinh 5 câu hỏi tương tự (giống phong cách, chủ đề, độ khó, độ dài) 
 và TRẢ VỀ đúng chuẩn LaTeX theo mẫu ex_test dưới đây:
-
-Mẫu định dạng:
-\\begin{{ex}}
-Đề bài...
-
-\\choice
-{{Đáp án 1}}
-{{Đáp án 2}}
-{{Đáp án 3}}
-{{Đáp án 4}}
-
-\\loigiai{{Giải thích...}}
-\\end{{ex}}
-
 Yêu cầu:
-- Mỗi câu hỏi là một \\begin{{ex}} ... \\end{{ex}} riêng biệt.
-- Nếu câu hỏi đúng/sai, dùng \\choiceTF{{mệnh đề 1}}{{mệnh đề 2}}...
-- Không thêm 'Câu 1', 'Đáp án đúng:', hay chú thích nào khác.
-- Chỉ trả về LaTeX thuần, không thêm lời giải thích.
+- Không thêm 'Câu 1.' hoặc 'Câu 2.'.
+- Nếu có các lựa chọn trắc nghiệm (A., B., C., D.), hãy chuyển thành:
+  \\choice
+  {{đáp án 1}}
+  {{đáp án 2}}
+  {{đáp án 3}}
+  {{đáp án 4}}
+   (mỗi đáp án trên 1 dòng riêng)
+- Nếu là bài đúng/sai, dùng:
+  \\choiceTF
+  {{mệnh đề 1}}
+  {{mệnh đề 2}}
+  {{mệnh đề 3}}
+  {{mệnh đề 4}}
+- Mỗi bài đặt trong \\begin{{ex}} ... \\end{{ex}}, có \\loigiai{{...}} ở cuối.
 """
 
             try:
