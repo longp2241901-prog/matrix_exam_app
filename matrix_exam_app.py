@@ -489,12 +489,29 @@ Văn bản cần xử lý:
 Dưới đây là nội dung văn bản người dùng cung cấp:
 {extracted_text}
 
-Hãy sinh 5 câu hỏi tương tự (giống phong cách, chủ đề, độ dài).
-Dạng LaTeX chuẩn ex_test:
-- Dùng \\begin{{ex}} ... \\end{{ex}}
-- Có \\loigiai{{...}} ở cuối
-⚠️ Chỉ trả về LaTeX, không thêm chú thích nào khác.
+Hãy sinh 5 câu hỏi tương tự (giống phong cách, chủ đề, độ khó, độ dài) 
+và TRẢ VỀ đúng chuẩn LaTeX theo mẫu ex_test dưới đây:
+
+Mẫu định dạng:
+\\begin{{ex}}
+Đề bài...
+
+\\choice
+{{Đáp án 1}}
+{{Đáp án 2}}
+{{Đáp án 3}}
+{{Đáp án 4}}
+
+\\loigiai{{Giải thích...}}
+\\end{{ex}}
+
+Yêu cầu:
+- Mỗi câu hỏi là một \\begin{{ex}} ... \\end{{ex}} riêng biệt.
+- Nếu câu hỏi đúng/sai, dùng \\choiceTF{{mệnh đề 1}}{{mệnh đề 2}}...
+- Không thêm 'Câu 1', 'Đáp án đúng:', hay chú thích nào khác.
+- Chỉ trả về LaTeX thuần, không thêm lời giải thích.
 """
+
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
