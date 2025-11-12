@@ -8,9 +8,9 @@ from docx.shared import RGBColor
 import PyPDF2
 from io import BytesIO
 from docx import Document as DocReader
-#=====================
+import copy
 import zipfile
-
+#=====================
 # 🔓 Giải nén data.zip nếu chưa có thư mục data
 if not os.path.exists("data"):
     if os.path.exists("data.zip"):
@@ -147,7 +147,8 @@ def export_latex_ex(all_questions, filename="output.tex"):
 # =========================
 def export_word_ex(all_questions, filename="output.docx"):
     from docx import Document
-    from docx.shared import RGBColor
+    from docx.shared import RGBColor, Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
 
     doc = Document()
     doc.add_heading("Đề kiểm tra", 0)
@@ -155,103 +156,135 @@ def export_word_ex(all_questions, filename="output.docx"):
     for q in all_questions:
         questions.extend(split_ex_blocks(q))
 
-    for i, q in enumerate(questions, 1):
-        # ===== Phần nội dung câu hỏi =====
-        noi_dung_match = re.search(
-            r"\\begin\{ex\}([\s\S]*?)(?=\\choice|\\choiceTF|\\shortans|\\loigiai|\\end\{ex\})",
-            q, re.MULTILINE,
-        )
-        noi_dung = noi_dung_match.group(1).strip() if noi_dung_match else q
-        noi_dung = noi_dung.replace("\\\\", "\n").replace("\r", "")
+    # --- Tách câu theo loại ---
+    mc_questions = []      # \choice
+    tf_questions = []      # \choiceTF
+    short_questions = []   # \shortans
 
-        p = doc.add_paragraph()
-        run_q = p.add_run(f"Câu {i}. ")
-        run_q.bold = True
-        p.add_run(noi_dung)
-
-        dap_an = None
-
-        # ===== Trắc nghiệm nhiều lựa chọn =====
+    for q in questions:
         if "\\choice" in q and not "\\choiceTF" in q:
-            lc_block = re.search(r"\\choice(.*?)(?=\\loigiai|\\end{ex})", q, re.S)
-            if lc_block:
-                lines = lc_block.group(1).splitlines()
-                options = []
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    is_true = "\\True" in line
-                    line = line.replace("\\True", "").strip("{} ")
-                    options.append((line, is_true))
-                for j, (opt, is_true) in enumerate(options):
-                    label = chr(65 + j) + "."
-                    p = doc.add_paragraph()
-                    run = p.add_run(f"{label} {opt}")
-                    if is_true:
-                        run.bold = True
-                        run.underline = True
-                        run.font.color.rgb = RGBColor(255, 0, 0)
-                        dap_an = chr(65 + j)
-
-        # ===== Đúng / Sai =====
+            mc_questions.append(q)
         elif "\\choiceTF" in q:
-            tf_block = re.search(r"\\choiceTF(.*?)(?=\\loigiai|\\end{ex})", q, re.S)
-            if tf_block:
-                lines = tf_block.group(1).splitlines()
-                tf_ans = ""
-                idx_tf = 0
-                for line in lines:
-                    line = line.strip("{} \t")
-                    if not line:
-                        continue
-                    is_true = "\\True" in line
-                    clean_line = line.replace("\\True", "").strip()
-                    label = f"{chr(97 + idx_tf)})"
-                    p = doc.add_paragraph()
-                    run = p.add_run(f"{label} {clean_line}")
-                    if is_true:
-                        run.bold = True
-                        run.underline = True
-                        run.font.color.rgb = RGBColor(255, 0, 0)
-                    tf_ans += "Đ" if is_true else "S"
-                    idx_tf += 1
-                dap_an = tf_ans
-
-        # ===== Trả lời ngắn =====
+            tf_questions.append(q)
         elif "\\shortans" in q:
-            sa_block = re.search(r"\\shortans\{(.*?)\}", q)
-            if sa_block:
-                doc.add_paragraph("Trả lời ngắn: ............")
-                dap_an = sa_block.group(1).strip()
+            short_questions.append(q)
 
-        # ===== Lời giải =====
-        loi_giai_match = re.search(r"\\loigiai\{([\s\S]*?)(?=\\end\{ex\})", q)
-        if loi_giai_match:
-            loi_giai = loi_giai_match.group(1).strip()
-            loi_giai = loi_giai.replace("\\\\", "\n")
-            loi_giai = loi_giai.strip()
+    section_map = [
+        ("PHẦN I – TRẮC NGHIỆM 4 LỰA CHỌN", mc_questions),
+        ("PHẦN II – TRẮC NGHIỆM ĐÚNG SAI", tf_questions),
+        ("PHẦN III – TRẢ LỜI NGẮN", short_questions)
+    ]
 
-            # Xoá duy nhất dấu } nếu nó ở cuối
-            if loi_giai.endswith("}"):
-                loi_giai = loi_giai[:-1].rstrip()
+    ques_counter = 1
+    for title, qlist in section_map:
+        if not qlist:
+            continue
+
+        # Tiêu đề section
+        p_title = doc.add_paragraph()
+        run_title = p_title.add_run(title)
+        run_title.bold = True
+        run_title.font.size = Pt(14)
+        p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph("")  # thêm 1 dòng trống
+
+        for q in qlist:
+            # ===== Nội dung câu hỏi =====
+            noi_dung_match = re.search(
+                r"\\begin\{ex\}([\s\S]*?)(?=\\choice|\\choiceTF|\\shortans|\\loigiai|\\end\{ex\})",
+                q, re.MULTILINE,
+            )
+            noi_dung = noi_dung_match.group(1).strip() if noi_dung_match else q
+            noi_dung = noi_dung.replace("\\\\", "\n").replace("\r", "")
 
             p = doc.add_paragraph()
-            run_lg = p.add_run("Lời giải: ")
-            run_lg.bold = True
-            if dap_an:
-                p.add_run(f"Đáp án: {dap_an}. {loi_giai}")
-            else:
-                p.add_run(loi_giai)
-        else:
-            if dap_an:
-                p = doc.add_paragraph()
-                run_lg = p.add_run("Lời giải: ")
+            run_q = p.add_run(f"Câu {ques_counter}. ")
+            run_q.bold = True
+            p.add_run(noi_dung)
+
+            dap_an = None
+
+            # ===== Trắc nghiệm nhiều lựa chọn =====
+            if "\\choice" in q and not "\\choiceTF" in q:
+                lc_block = re.search(r"\\choice(.*?)(?=\\loigiai|\\end{ex})", q, re.S)
+                if lc_block:
+                    lines = lc_block.group(1).splitlines()
+                    options = []
+                    for line in lines:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        is_true = "\\True" in line
+                        line = line.replace("\\True", "").strip("{} ")
+                        options.append((line, is_true))
+                    for j, (opt, is_true) in enumerate(options):
+                        label = chr(65 + j) + "."
+                        p_opt = doc.add_paragraph()
+                        run = p_opt.add_run(f"{label} {opt}")
+                        if is_true:
+                            run.bold = True
+                            run.underline = True
+                            run.font.color.rgb = RGBColor(255, 0, 0)
+                            dap_an = chr(65 + j)
+
+            # ===== Đúng / Sai =====
+            elif "\\choiceTF" in q:
+                tf_block = re.search(r"\\choiceTF(.*?)(?=\\loigiai|\\end{ex})", q, re.S)
+                if tf_block:
+                    lines = tf_block.group(1).splitlines()
+                    tf_ans = ""
+                    idx_tf = 0
+                    for line in lines:
+                        line = line.strip("{} \t")
+                        if not line:
+                            continue
+                        is_true = "\\True" in line
+                        clean_line = line.replace("\\True", "").strip()
+                        label = f"{chr(97 + idx_tf)})"
+                        p_opt = doc.add_paragraph()
+                        run = p_opt.add_run(f"{label} {clean_line}")
+                        if is_true:
+                            run.bold = True
+                            run.underline = True
+                            run.font.color.rgb = RGBColor(255, 0, 0)
+                        tf_ans += "Đ" if is_true else "S"
+                        idx_tf += 1
+                    dap_an = tf_ans
+
+            # ===== Trả lời ngắn =====
+            elif "\\shortans" in q:
+                sa_block = re.search(r"\\shortans\{(.*?)\}", q)
+                if sa_block:
+                    doc.add_paragraph("Trả lời ngắn: ............")
+                    dap_an = sa_block.group(1).strip()
+
+            # ===== Lời giải =====
+            loi_giai_match = re.search(r"\\loigiai\{([\s\S]*?)(?=\\end\{ex\})", q)
+            if loi_giai_match:
+                loi_giai = loi_giai_match.group(1).strip()
+                loi_giai = loi_giai.replace("\\\\", "\n").strip()
+                if loi_giai.endswith("}"):
+                    loi_giai = loi_giai[:-1].rstrip()
+
+                p_lg = doc.add_paragraph()
+                run_lg = p_lg.add_run("Lời giải: ")
                 run_lg.bold = True
-                p.add_run(f"Đáp án: {dap_an}.")
+                if dap_an:
+                    p_lg.add_run(f"Đáp án: {dap_an}. {loi_giai}")
+                else:
+                    p_lg.add_run(loi_giai)
+            else:
+                if dap_an:
+                    p_lg = doc.add_paragraph()
+                    run_lg = p_lg.add_run("Lời giải: ")
+                    run_lg.bold = True
+                    p_lg.add_run(f"Đáp án: {dap_an}.")
+
+            ques_counter += 1
 
     doc.save(filename)
     return filename
+
 
 
 
@@ -568,10 +601,165 @@ if export_tex_btn and st.session_state.all_questions:
 
 # =========================
 # 👀 Preview
+
+st.markdown("## 🎲 Tạo mã đề trộn tự động")
+
+num_versions = st.number_input("Số mã đề muốn tạo", 1, 10, 3)
+mix_questions = st.button("🔀 Trộn và tạo mã đề")
+
+# =========================
+# 🧩 Hàm phụ trợ
+# =========================
+def shuffle_choices(q_text):
+    """Trộn ngẫu nhiên các lựa chọn \\choice{} trong 1 câu hỏi"""
+    pattern = r"\\choice(.*?)(?=\\loigiai|\\end\{ex\})"
+    match = re.search(pattern, q_text, re.S)
+    if not match:
+        return q_text, None  # không có lựa chọn
+
+    block = match.group(1)
+    lines = [l.strip() for l in block.splitlines() if l.strip()]
+    clean_lines = []
+    for l in lines:
+        is_true = "\\True" in l
+        l = l.replace("\\True", "").strip("{} ")
+        clean_lines.append((l, is_true))
+
+    random.shuffle(clean_lines)
+    new_block = "\\choice\n" + "\n".join(
+        "{" + (("\\True " if is_true else "") + l) + "}" for l, is_true in clean_lines
+    )
+
+    q_text_new = q_text.replace(match.group(0), new_block)
+    new_answer = chr(65 + [i for i, (_, is_true) in enumerate(clean_lines) if is_true][0])
+    return q_text_new, new_answer
+
+
+def classify_question(q_text):
+    """Xác định loại câu hỏi: 4 lựa chọn, đúng sai, trả lời ngắn"""
+    if "\\choiceTF" in q_text:
+        return "TF"
+    elif "\\choice" in q_text:
+        return "MC"
+    elif "\\shortans" in q_text:
+        return "SA"
+    else:
+        return "OTHER"
+
+
+# =========================
+# 🚀 Trộn đề
+# =========================
+if mix_questions and st.session_state.all_questions:
+    all_q = "\n".join(st.session_state.all_questions)
+    questions = split_ex_blocks(all_q)
+
+    os.makedirs("tmp", exist_ok=True)
+
+    word_files, tex_files = [], []
+
+    for ver in range(1, int(num_versions) + 1):
+        q_copy = copy.deepcopy(questions)
+        random.shuffle(q_copy)
+
+        # --- Phân loại câu hỏi ---
+        q_mc = [q for q in q_copy if classify_question(q) == "MC"]
+        q_tf = [q for q in q_copy if classify_question(q) == "TF"]
+        q_sa = [q for q in q_copy if classify_question(q) == "SA"]
+
+        # Trộn thứ tự trong từng nhóm
+        random.shuffle(q_mc)
+        random.shuffle(q_tf)
+        random.shuffle(q_sa)
+
+        mixed_questions = []
+        answer_key = []
+
+        # --- Phần I: Trắc nghiệm 4 lựa chọn ---
+        mixed_questions.append("\\section*{Phần I – Trắc nghiệm 4 lựa chọn}")
+        for i, q in enumerate(q_mc, 1):
+            q_new, ans = shuffle_choices(q)
+            mixed_questions.append(q_new)
+            if ans:
+                answer_key.append(f"Câu {i}: {ans}")
+            else:
+                answer_key.append(f"Câu {i}: ---")
+
+        # --- Phần II: Trắc nghiệm đúng sai ---
+        start_tf = len(answer_key) + 1
+        mixed_questions.append("\\section*{Phần II – Trắc nghiệm đúng sai}")
+        for j, q in enumerate(q_tf, start=start_tf):
+            mixed_questions.append(q)
+            match = re.findall(r"\\True|\\False", q)
+            if match:
+                key = " / ".join(match)
+                answer_key.append(f"Câu {j}: {key}")
+            else:
+                answer_key.append(f"Câu {j}: ---")
+
+        # --- Phần III: Trả lời ngắn ---
+        start_sa = len(answer_key) + 1
+        mixed_questions.append("\\section*{Phần III – Trả lời ngắn}")
+        for k, q in enumerate(q_sa, start=start_sa):
+            mixed_questions.append(q)
+            sa = re.search(r"\\shortans\{(.*?)\}", q)
+            if sa:
+                answer_key.append(f"Câu {k}: {sa.group(1).strip()}")
+            else:
+                answer_key.append(f"Câu {k}: ---")
+
+        # --- Xuất Word và LaTeX ---
+        de_file = f"tmp/De_so_{ver}.docx"
+        dap_an_file = f"tmp/Dapan_so_{ver}.docx"
+        export_word_ex(mixed_questions, de_file)
+
+        doc_ans = Document()
+        doc_ans.add_heading(f"ĐÁP ÁN - MÃ ĐỀ {ver}", 0)
+        for line in answer_key:
+            doc_ans.add_paragraph(line)
+        doc_ans.save(dap_an_file)
+        word_files += [de_file, dap_an_file]
+
+        tex_file = f"tmp/De_so_{ver}.tex"
+        export_latex_ex(mixed_questions, tex_file)
+        dap_an_tex = f"tmp/Dapan_so_{ver}.txt"
+        with open(dap_an_tex, "w", encoding="utf-8") as f:
+            f.write("\n".join(answer_key))
+        tex_files += [tex_file, dap_an_tex]
+
+    # --- Đóng gói ZIP ---
+    word_zip = "tmp/De_Word.zip"
+    tex_zip = "tmp/De_LaTeX.zip"
+    with zipfile.ZipFile(word_zip, "w") as zipf:
+        for f in word_files:
+            zipf.write(f, os.path.basename(f))
+    with zipfile.ZipFile(tex_zip, "w") as zipf:
+        for f in tex_files:
+            zipf.write(f, os.path.basename(f))
+
+    # Lưu để không mất khi rerun
+    st.session_state.word_zip = word_zip
+    st.session_state.tex_zip = tex_zip
+
+    st.success(f"✅ Đã tạo {num_versions} mã đề và đáp án thành công!")
+
+
+# =========================
+# 💾 Nút tải file ZIP
+# =========================
+if "word_zip" in st.session_state and os.path.exists(st.session_state.word_zip):
+    with open(st.session_state.word_zip, "rb") as f:
+        st.download_button("⬇️ Tải tất cả file Word (.zip)", f, file_name="De_Word.zip")
+
+if "tex_zip" in st.session_state and os.path.exists(st.session_state.tex_zip):
+    with open(st.session_state.tex_zip, "rb") as f:
+        st.download_button("⬇️ Tải tất cả file LaTeX (.zip)", f, file_name="De_LaTeX.zip")
+
+
+    st.success(f"✅ Đã tạo {num_versions} mã đề và đáp án thành công!")
+
 # =========================
 if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
-
-
