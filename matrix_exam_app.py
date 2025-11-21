@@ -379,6 +379,7 @@ elif mode.startswith("✍️"):
 Dạng 4 lựa chọn: \\begin{ex} ... \\choice{A}{\\True B}{C}{D} \\loigiai{Giải thích...} \\end{ex}
 Dạng đúng sai: \\begin{ex} ... \\choiceTF{a}{\\True b}{c}{\\True d} \\loigiai{Giải thích...} \\end{ex}
 Dạng trả lời ngắn: \\begin{ex} ... \\shortans[oly]{đáp số}\\end{ex}
+Hoặc tự nhập với nội dung mong muốn, ví dụ: Tạo cho tôi bài tập thống kê tính tứ phân vị (Toán lớp 10)
 """
     )
     so_luong_tu_nhap = st.number_input("Số lượng câu muốn sinh thêm:", 1, 50, 5)
@@ -789,6 +790,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
