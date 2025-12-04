@@ -70,47 +70,38 @@ st.markdown(
 # =========================
 # 🔑 Nhập Groq API Key cá nhân
 # =========================
-st.markdown("### 🔐 Nhập key Groq API cá nhân")
+# =========================
+# 🔑 Nhập Groq API Key cá nhân hoặc dùng key mặc định
+# =========================
+st.markdown("### 🔐 Tuỳ chọn API Key")
 
-# Ô nhập API key
+# 1) Ô nhập API Key
 user_api_key = st.text_input(
     "Nhập Groq API Key của bạn (bắt đầu bằng 'gsk_...')",
     type="password",
-    help="Bạn cần có Groq API Key riêng để sử dụng. Lấy tại https://console.groq.com/keys",
+    help="Bạn có thể nhập key cá nhân hoặc chọn dùng key miễn phí của ứng dụng."
 )
 
-# Hướng dẫn thêm
-st.info(
-    """
-    💡 **Cách lấy Groq API Key:**
-    1. Truy cập [https://console.groq.com/keys](https://console.groq.com/keys)
-    2. Đăng nhập (hoặc tạo tài khoản miễn phí)
-    3. Chọn **Create API Key**
-    4. Sao chép key (dạng `gsk_...`) và dán vào ô trên.
-    
-    ⚠️ **Lưu ý giới hạn sử dụng:**
-    - Mỗi API key có giới hạn ~100.000 token mỗi ngày (đếm cả input + output).  
-    - Nếu vượt giới hạn, bạn sẽ thấy lỗi `Rate limit reached`.  
-    - Sau khoảng **30–60 phút**, Groq sẽ tự động reset quota để bạn tiếp tục sử dụng.
-    """,
-    icon="ℹ️"
-)
+# 2) Checkbox dùng API key mặc định
+use_default = st.checkbox("🟢 Sử dụng ứng dụng **không cần nhập API key** (dùng key mặc định)")
 
-# Lưu key vào session
-if user_api_key:
-    st.session_state["api_key"] = user_api_key.strip()
-    st.success("✅ API Key đã được lưu. Bạn có thể bắt đầu sử dụng ứng dụng.")
+# ===== KEY MẶC ĐỊNH =====
+#DEFAULT_API_KEY = "gsk_................................"   # <-- Bạn điền key của bạn vào đây
+DEFAULT_API_KEY = st.secrets["GROQ_API_KEY"]
+
+# Xử lý logic chọn key
+if use_default:
+    api_key = DEFAULT_API_KEY
+    st.success("✅ Đang sử dụng API key mặc định của ứng dụng.")
+elif user_api_key:
+    api_key = user_api_key.strip()
+    st.success("✅ API Key cá nhân đã được lưu.")
 else:
-    st.warning("🔑 Hãy nhập API Key để tiếp tục.")
-
-# Nếu chưa có key thì dừng app
-if "api_key" not in st.session_state:
+    st.warning("🔑 Hãy nhập API Key hoặc tick chọn 'Sử dụng không cần API key'.")
     st.stop()
 
-# Gán biến dùng chung cho toàn app
-api_key = st.session_state["api_key"]
-
-
+# Lưu key vào session_state
+st.session_state["api_key"] = api_key
 
 # =========================
 # 🧠 Hàm tiện ích
@@ -790,6 +781,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
