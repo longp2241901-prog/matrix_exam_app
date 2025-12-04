@@ -78,29 +78,44 @@ st.markdown("### 🔐 Tuỳ chọn API Key")
 # 1) Ô nhập API Key
 user_api_key = st.text_input(
     "Nhập Groq API Key của bạn (bắt đầu bằng 'gsk_...')",
-    type="password",
-    help="Bạn có thể nhập key cá nhân hoặc chọn dùng key miễn phí của ứng dụng."
+    type="password"
 )
+
+# Nút hiển thị hướng dẫn
+if st.button("📘 Hướng dẫn lấy API key"):
+    st.info(
+        """
+        💡 **Cách lấy Groq API Key:**
+        1. Truy cập: https://console.groq.com/keys  
+        2. Đăng nhập (hoặc tạo tài khoản miễn phí)  
+        3. Nhấn **Create API Key**  
+        4. Copy key dạng `gsk_...` và dán vào ô phía trên.
+
+        ⚠️ **Giới hạn sử dụng:**
+        - Mỗi key ~100.000 token/ngày.
+        - Hết hạn mức → báo lỗi **Rate limit reached**.
+        - Sau **30–60 phút**, Groq sẽ tự reset quota.
+        """,
+        icon="ℹ️"
+    )
 
 # 2) Checkbox dùng API key mặc định
 use_default = st.checkbox("🟢 Sử dụng ứng dụng **không cần nhập API key** (dùng key mặc định)")
 
 # ===== KEY MẶC ĐỊNH =====
-#DEFAULT_API_KEY = "gsk_................................"   # <-- Bạn điền key của bạn vào đây
 DEFAULT_API_KEY = st.secrets["GROQ_API_KEY"]
 
-# Xử lý logic chọn key
+# Xử lý logic
 if use_default:
     api_key = DEFAULT_API_KEY
-    st.success("✅ Đang sử dụng API key mặc định của ứng dụng.")
+    st.success("✅ Đang sử dụng API mặc định của ứng dụng.")
 elif user_api_key:
     api_key = user_api_key.strip()
     st.success("✅ API Key cá nhân đã được lưu.")
 else:
-    st.warning("🔑 Hãy nhập API Key hoặc tick chọn 'Sử dụng không cần API key'.")
+    st.warning("🔑 Hãy nhập API Key hoặc tick 'Sử dụng không cần API key'.")
     st.stop()
 
-# Lưu key vào session_state
 st.session_state["api_key"] = api_key
 
 # =========================
@@ -781,6 +796,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
