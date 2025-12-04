@@ -378,17 +378,55 @@ if mode.startswith("📂"):
 # =========================
 elif mode.startswith("✍️"):
     st.markdown("## ✍️ Nhập nội dung câu hỏi mẫu (theo chuẩn ex_test)")
+
+    # --- NÚT HIỂN THỊ HƯỚNG DẪN ---
+    if st.button("📘 Hướng dẫn sử dụng"):
+        st.info(
+            """
+            ### 📝 Cách nhập câu hỏi mẫu
+
+            Bạn có thể nhập **3 dạng chuẩn ex_test**:
+
+            #### 1) Dạng 4 lựa chọn
+            ```latex
+            \begin{ex}
+            Nội dung câu hỏi...
+            \choice{A}{\True B}{C}{D}
+            \loigiai{Giải thích...}
+            \end{ex}
+            ```
+
+            #### 2) Dạng Đúng/Sai
+            ```latex
+            \begin{ex}
+            Nội dung câu hỏi...
+            \choiceTF{a}{\True b}{c}{\True d}
+            \loigiai{Giải thích...}
+            \end{ex}
+            ```
+
+            #### 3) Dạng trả lời ngắn
+            ```latex
+            \begin{ex}
+            Nội dung câu hỏi...
+            \shortans[oly]{Đáp số}
+            \end{ex}
+            ```
+
+            Bạn cũng có thể nhập yêu cầu tự nhiên, ví dụ:
+            **"Tạo cho tôi bài tập thống kê tính tứ phân vị (Toán 10)"**
+            """
+        )
+
+    # --- TEXT AREA KHÔNG CÓ PLACEHOLDER ---
     user_input = st.text_area(
         "Nhập nội dung LaTeX của câu hỏi (\\begin{ex} ... \\end{ex}):",
         height=300,
-        placeholder="""Ví dụ:
-Dạng 4 lựa chọn: \\begin{ex} ... \\choice{A}{\\True B}{C}{D} \\loigiai{Giải thích...} \\end{ex}
-Dạng đúng sai: \\begin{ex} ... \\choiceTF{a}{\\True b}{c}{\\True d} \\loigiai{Giải thích...} \\end{ex}
-Dạng trả lời ngắn: \\begin{ex} ... \\shortans[oly]{đáp số}\\end{ex}
-Hoặc tự nhập với nội dung mong muốn, ví dụ: Tạo cho tôi bài tập thống kê tính tứ phân vị (Toán lớp 10)
-"""
+        placeholder=""
     )
+
     so_luong_tu_nhap = st.number_input("Số lượng câu muốn sinh thêm:", 1, 50, 5)
+
 
 # =========================
 # 📤 Kéo thả Word / PDF
@@ -796,6 +834,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
