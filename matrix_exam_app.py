@@ -314,6 +314,11 @@ mode = st.radio(
 # 📂 Giao diện cũ - dùng data (mở rộng thêm môn)
 # =========================
 if mode.startswith("📂"):
+        # Nút hướng dẫn sử dụng
+    st.link_button(
+        "📘 Hướng dẫn sử dụng",
+        "https://drive.google.com/file/d/1S7lB75eCh1FaDtoeKROaM_dzAlL827bD/view?usp=sharing"
+    )
     def list_subfolders(path):
         return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))] if os.path.exists(path) else []
     def list_txt_files(path):
@@ -801,6 +806,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
