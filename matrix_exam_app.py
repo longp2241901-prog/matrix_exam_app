@@ -380,11 +380,11 @@ elif mode.startswith("✍️"):
     st.markdown("## ✍️ Nhập nội dung câu hỏi mẫu (theo chuẩn ex_test)")
 
     if st.button("📘 Hướng dẫn sử dụng"):
-        pdf_url = "HDSD2.pdf"
+        pdf_url = "https://drive.google.com/file/d/1Kvqykd0IaLk5J2B24iWUMk6PIop_vmRM/view?usp=drive_link"
         st.markdown(
             f"""
             ### 📄 Hướng dẫn sử dụng  
-            👉 [Nhấn vào đây để xem PDF hướng dẫn đầy đủ]({pdf_url})
+            👉 <a href="{pdf_url}" target="_blank">Nhấn vào đây để xem hướng dẫn (PDF)</a>
             """,
             unsafe_allow_html=True
         )
@@ -806,6 +806,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
