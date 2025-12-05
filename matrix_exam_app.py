@@ -405,20 +405,18 @@ elif mode.startswith("✍️"):
 # =========================
 else:
     st.markdown("## 📤 Kéo thả file PDF để đọc nội dung")
-    st.info(
-        """
-        💡 **Hướng dẫn sử dụng:**
-        - Ứng dụng chỉ hỗ trợ **file PDF**.
-        - Nếu bạn có file **Word (.docx)** chứa đề gốc, vui lòng **chuyển sang PDF** trước khi tải lên.
-        - Cách đơn giản nhất: Mở Word → Chọn **File → Save As → PDF**.
-        - Sau khi tải lên PDF, hệ thống sẽ tự động đọc, làm sạch và Tex hóa nội dung.
-        - Đối với file word sau khi xuất ra, để chuyển công thức Toán sang Mathtype thì chọn công thức sau đó chọn Mathtype->Toogle TeX.
-        ⚠️ Mỗi lần xử lý, ứng dụng chỉ đọc **tối đa 2 trang đầu tiên của PDF** để đảm bảo tốc độ và độ chính xác.
-        ⚠️ Bạn có thể dùng **khoảng 10–12 lần/ngày** trước khi đạt giới hạn token. Khi đạt giới hạn token hãy **chờ 30–60 phút** để tiếp tục.
-        """,
-        icon="ℹ️"
+
+    # Nút mở hướng dẫn sử dụng
+    st.link_button(
+        "📘 Hướng dẫn sử dụng",
+        "https://drive.google.com/file/d/1ddMHacNeJBTkrg2FEi-09YFNo1dLEgu0/view?usp=drive_link"
     )
-    uploaded_file = st.file_uploader("📄 Kéo thả hoặc chọn file PDF tại đây", type=["pdf"])
+
+    uploaded_file = st.file_uploader(
+        "📄 Kéo thả hoặc chọn file PDF tại đây",
+        type=["pdf"]
+    )
+
     extracted_text = ""
 #==========
     if uploaded_file:
@@ -806,6 +804,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
