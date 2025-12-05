@@ -379,43 +379,14 @@ if mode.startswith("📂"):
 elif mode.startswith("✍️"):
     st.markdown("## ✍️ Nhập nội dung câu hỏi mẫu (theo chuẩn ex_test)")
 
-    # --- NÚT HIỂN THỊ HƯỚNG DẪN ---
     if st.button("📘 Hướng dẫn sử dụng"):
-        st.info(
-            """
-            ### 📝 Cách nhập câu hỏi mẫu
-
-            Bạn có thể nhập **3 dạng chuẩn ex_test**:
-
-            #### 1) Dạng 4 lựa chọn
-            ```latex
-            \begin{ex}
-            Nội dung câu hỏi...
-            \choice{A}{\True B}{C}{D}
-            \loigiai{Giải thích...}
-            \end{ex}
-            ```
-
-            #### 2) Dạng Đúng/Sai
-            ```latex
-            \begin{ex}
-            Nội dung câu hỏi...
-            \choiceTF{a}{\True b}{c}{\True d}
-            \loigiai{Giải thích...}
-            \end{ex}
-            ```
-
-            #### 3) Dạng trả lời ngắn
-            ```latex
-            \begin{ex}
-            Nội dung câu hỏi...
-            \shortans[oly]{Đáp số}
-            \end{ex}
-            ```
-
-            Bạn cũng có thể nhập yêu cầu tự nhiên, ví dụ:
-            **"Tạo cho tôi bài tập thống kê tính tứ phân vị (Toán 10)"**
-            """
+        pdf_url = "guide/HDSD2.pdf"
+        st.markdown(
+            f"""
+            ### 📄 Hướng dẫn sử dụng
+            👉 [Nhấn vào đây để xem PDF hướng dẫn đầy đủ]({pdf_url})
+            """,
+            unsafe_allow_html=True
         )
 
     # --- TEXT AREA KHÔNG CÓ PLACEHOLDER ---
@@ -834,6 +805,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
