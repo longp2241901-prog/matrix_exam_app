@@ -381,15 +381,7 @@ elif mode.startswith("✍️"):
 
     pdf_url = "https://drive.google.com/file/d/1Kvqykd0IaLk5J2B24iWUMk6PIop_vmRM/view?usp=drive_link"
 
-    if st.button("📘 Hướng dẫn sử dụng"):
-        st.markdown(
-            f"""
-            <script>
-                window.open('{pdf_url}', '_blank');
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
+    st.link_button("📘 Hướng dẫn sử dụng", pdf_url)
 
 
 
@@ -809,6 +801,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
