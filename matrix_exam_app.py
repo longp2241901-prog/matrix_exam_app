@@ -380,10 +380,10 @@ elif mode.startswith("✍️"):
     st.markdown("## ✍️ Nhập nội dung câu hỏi mẫu (theo chuẩn ex_test)")
 
     if st.button("📘 Hướng dẫn sử dụng"):
-        pdf_url = "guide/HDSD2.pdf"
+        pdf_url = "HDSD2.pdf"
         st.markdown(
             f"""
-            ### 📄 Hướng dẫn sử dụng
+            ### 
             👉 [Nhấn vào đây để xem PDF hướng dẫn đầy đủ]({pdf_url})
             """,
             unsafe_allow_html=True
@@ -805,6 +805,7 @@ if st.session_state.all_questions:
     st.markdown("### Xem trước (5 câu đầu)")
     for q in st.session_state.all_questions[:5]:
         st.code(q, language="latex")
+
 
 
 
